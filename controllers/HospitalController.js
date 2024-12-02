@@ -1,12 +1,24 @@
 // controllers/hospitalController.js
-
+import Hospital from "../models/HospitalModal.js";
 // Example of a function to add a hospital
 export const addHospital = async (req, res) => {
   try {
     const { name, insurances } = req.body;
-    // Logic to add the hospital (e.g., save to DB)
-    const newHospital = { name, insurances }; // Simulating the save operation
-    // You would replace this with actual database logic
+
+    // Check if the name and insurances are provided
+    if (!name || !Array.isArray(insurances) || insurances.length === 0) {
+      return res.status(400).json({ message: "Invalid data provided" });
+    }
+
+    // Create a new hospital instance
+    const newHospital = new Hospital({
+      name,
+      insurances,
+    });
+
+    // Save the new hospital to the database
+    await newHospital.save();
+
     return res.status(201).json(newHospital); // Respond with the created hospital
   } catch (error) {
     console.error(error);
@@ -17,12 +29,9 @@ export const addHospital = async (req, res) => {
 // Example of a function to get hospitals
 export const getHospitals = async (req, res) => {
   try {
-    // Logic to get hospitals (e.g., from a DB)
-    const hospitals = [
-      { name: "City Hospital", insurances: ["Blue Cross", "Aetna"] },
-      { name: "Green Valley Hospital", insurances: ["United Healthcare"] },
-    ]; // This is a mock list
-    return res.status(200).json(hospitals);
+    // Fetch all hospitals from the DB
+    const hospitals = await Hospital.find();
+    return res.status(200).json({ hospitals, success: true });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Failed to retrieve hospitals" });

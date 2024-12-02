@@ -1,11 +1,13 @@
 // controllers/insuranceController.js
-import Insurance from "../models/insuranceModel.js"; // Use import instead of require
+// import Insurance from "../models/insuranceModel.js"; // Use import instead of require
+// import Insurance from "../models/InsuranceModal.js";
+import Insurance from "../models/InsuranceModal.js";
 
 // Get all insurance types
 export const getInsurances = async (req, res) => {
   try {
     const insurances = await Insurance.find();
-    res.json(insurances);
+    res.json({ insurances, success: true });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

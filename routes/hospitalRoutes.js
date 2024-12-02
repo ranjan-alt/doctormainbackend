@@ -1,3 +1,4 @@
+// routes/hospitalRoutes.js
 import express from "express";
 import {
   getHospitals,
@@ -6,7 +7,8 @@ import {
 
 const router = express.Router();
 
+// Define routes for getting and adding hospitals
 router.get("/", getHospitals);
 router.post("/", addHospital);
 
-export default router; // Export the router as the default export
+export default router;
