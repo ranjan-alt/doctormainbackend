@@ -5,7 +5,7 @@ import {
   getInsurances,
   addInsurance,
   deleteAllInsurances,
-} from "../controllers/insuranceController.js";
+} from "../controllers/InsuranceController.js";
 
 const router = express.Router();
 
