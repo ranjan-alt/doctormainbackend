@@ -28,3 +28,16 @@ export const addInsurance = async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 };
+
+// Delete all insurances
+export const deleteAllInsurances = async (req, res) => {
+  try {
+    await Insurance.deleteMany(); // Delete all insurance records
+    res.json({
+      message: "All insurances have been deleted successfully!",
+      success: true,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

@@ -37,3 +37,16 @@ export const getHospitals = async (req, res) => {
     res.status(500).json({ message: "Failed to retrieve hospitals" });
   }
 };
+
+// delete all hospitals
+export const deleteAllHospital = async (req, res) => {
+  try {
+    await Hospital.deleteMany();
+    res.json({
+      message: "All hospitals have been deleted successfully!",
+      success: true,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
