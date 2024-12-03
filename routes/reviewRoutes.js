@@ -6,7 +6,7 @@ import {
   getReviewStats,
   //   updateReview,
   //   deleteReview,
-} from "../controllers/ReviewController.js";
+} from "../controllers/reviewController.js";
 // const router = express.Router();
 const reviewRouter = express.Router();
 
