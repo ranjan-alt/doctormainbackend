@@ -65,6 +65,55 @@ export const getReviews = async (req, res) => {
   }
 };
 
+// Add this function in your review controller
+
+// Get review stats for a specific doctor
+export const getReviewStats = async (req, res) => {
+  const { docId } = req.params;
+  console.log(docId, "receivedDocid for stats");
+
+  try {
+    // Get reviews for the specified doctor
+    const reviews = await reviewModal.find({ docId });
+
+    if (!reviews || reviews.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No reviews found for this doctor" });
+    }
+
+    const validRatings = reviews.map((review) => {
+      const rating = Number(review.rating);
+      return isNaN(rating) ? 0 : rating; // If invalid, set rating to 0
+    });
+
+    const totalReviews = validRatings.length;
+
+    if (totalReviews === 0) {
+      return res
+        .status(200)
+        .json({ avgRating: "No rating yet", totalReviews: 0 });
+    }
+
+    // Calculate the average rating
+    const avgRating = (
+      validRatings.reduce((sum, rating) => sum + rating, 0) / totalReviews
+    ).toFixed(1);
+
+    // Construct the stats object
+    const reviewStats = {
+      avgRating, // Rounded to one decimal place
+      totalReviews,
+    };
+
+    // Return only the stats
+    res.status(200).json(reviewStats);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
 // // Update a review
 // export const updateReview = async (req, res) => {
 //   const { reviewId } = req.params;

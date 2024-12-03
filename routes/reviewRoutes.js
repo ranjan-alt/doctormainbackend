@@ -3,6 +3,7 @@ import express from "express";
 import {
   addReview,
   getReviews,
+  getReviewStats,
   //   updateReview,
   //   deleteReview,
 } from "../controllers/ReviewController.js";
@@ -12,6 +13,7 @@ const reviewRouter = express.Router();
 // Route to add a review
 reviewRouter.post("/add", addReview);
 
+reviewRouter.get("/reviewstats/:docId", getReviewStats);
 // // Route to get all reviews for a specific doctor
 reviewRouter.get("/doctor/:docId", getReviews);
 
