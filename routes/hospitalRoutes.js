@@ -4,6 +4,7 @@ import {
   getHospitals,
   addHospital,
   deleteAllHospital,
+  editHospital,
 } from "../controllers/HospitalController.js";
 
 const router = express.Router();
@@ -11,6 +12,7 @@ const router = express.Router();
 // Define routes for getting and adding hospitals
 router.get("/", getHospitals);
 router.post("/", addHospital);
+router.put("/edit/:hospitalId", editHospital);
 router.delete("/", deleteAllHospital);
 
 export default router;

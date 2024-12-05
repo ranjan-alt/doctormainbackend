@@ -38,6 +38,36 @@ export const getHospitals = async (req, res) => {
   }
 };
 
+export const editHospital = async (req, res) => {
+  const { hospitalId } = req.params;
+  const { name, insurances } = req.body;
+  try {
+    if (!name || !Array.isArray(insurances)) {
+      return res.status(400).json({ message: "Invalid data provided" });
+    }
+    const hospital = await Hospital.findById(hospitalId);
+    if (!hospital) {
+      return res.status(404).json({ message: "Hospital not found" });
+    }
+
+    hospital.name = name;
+    hospital.insurances = insurances;
+
+    // Save the updated hospital to the database
+    await hospital.save();
+    return res.status(200).json({
+      message: "Hospital updated successfully",
+      hospital,
+      success: true,
+    });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ message: "Failed to update hospital", error: error.message });
+  }
+};
+
 // delete all hospitals
 export const deleteAllHospital = async (req, res) => {
   try {
