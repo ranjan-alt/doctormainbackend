@@ -29,6 +29,27 @@ export const addInsurance = async (req, res) => {
   }
 };
 
+//edit isnurance
+
+export const editInsurance = async (req, res) => {
+  const { insuranceId } = req.params; // Get the insurance ID from URL params
+  const { name } = req.body; // Get the updated name from the request body
+  console.log(insuranceId, name, "backendd");
+  try {
+    const updatedInsurance = await Insurance.findByIdAndUpdate(
+      insuranceId,
+      { name },
+      { new: true }
+    );
+    if (!updatedInsurance) {
+      return res.status(404).json({ message: "Insurance not found" });
+    }
+    res.json({ insurance: updatedInsurance, success: true });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 // Delete all insurances
 export const deleteAllInsurances = async (req, res) => {
   try {
