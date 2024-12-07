@@ -50,6 +50,20 @@ export const editInsurance = async (req, res) => {
   }
 };
 
+export const deleteInsurance = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const insurance = await Insurance.findByIdAndDelete(id);
+
+    if (!insurance) {
+      return res.status(404).json({ message: "Insurance not found" });
+    }
+
+    return res.status(200).json({ message: "Insurance Deleted Successfully" });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
 // Delete all insurances
 export const deleteAllInsurances = async (req, res) => {
   try {
