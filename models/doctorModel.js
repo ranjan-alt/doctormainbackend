@@ -17,8 +17,10 @@ const doctorSchema = new mongoose.Schema(
     date: { type: Number, required: true },
     slots: [
       {
-        day: String,
-        time: String,
+        day: { type: String, required: true },
+        time: { type: String, required: false }, // or fromTime and toTime
+        fromTime: { type: String },
+        toTime: { type: String },
       },
     ],
   },

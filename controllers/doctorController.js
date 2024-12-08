@@ -125,23 +125,48 @@ const updateDoctorProfile = async (req, res) => {
   try {
     const { docId, fees, address, available, slots } = req.body;
 
-    // Validate slots (ensure it's an array)
-    if (!Array.isArray(slots)) {
-      return res.json({ success: false, message: "Slots should be an array" });
+    // Ensure docId is provided
+    if (!docId) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Doctor ID is required" });
     }
 
-    // Update the doctor profile with fees, address, availability, and slots
-    await doctorModel.findByIdAndUpdate(docId, {
+    // Validate that doctor exists
+    const doctor = await doctorModel.findById(docId);
+    if (!doctor) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Doctor not found" });
+    }
+
+    // Update the profile data
+    const updateFields = {
       fees,
       address,
       available,
       slots,
-    });
+    };
 
-    res.json({ success: true, message: "Profile Updated with slots" });
+    const updatedProfile = await doctorModel.findByIdAndUpdate(
+      docId,
+      { $set: updateFields },
+      { new: true }
+    );
+
+    if (!updatedProfile) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Doctor not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+      data: updatedProfile,
+    });
   } catch (error) {
-    console.log(error);
-    res.json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
