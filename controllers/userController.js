@@ -8,6 +8,7 @@ import { v2 as cloudinary } from "cloudinary";
 import stripe from "stripe";
 import razorpay from "razorpay";
 import nodemailer from "nodemailer";
+import crypto from "crypto";
 
 // Gateway Initialize
 const stripeInstance = new stripe(process.env.STRIPE_SECRET_KEY);
@@ -84,6 +85,123 @@ const loginUser = async (req, res) => {
   } catch (error) {
     console.log(error);
     res.json({ success: false, message: error.message });
+  }
+};
+
+const requestPasswordReset = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.json({ success: false, message: "Email is required" });
+    }
+
+    const user = await userModel.findOne({ email });
+    if (!user) {
+      return res.json({ success: false, message: "User not found" });
+    }
+
+    // Generate a reset token
+    const token = crypto.randomBytes(32).toString("hex");
+    user.resetPasswordToken = token;
+    user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+    await user.save();
+
+    // // Set token expiration (e.g., 1 hour)
+    // user.resetPasswordToken = hashedToken;
+    // user.resetPasswordExpires = Date.now() + 60 * 60 * 1000; // 1 hour
+    // await user.save();
+
+    // Send email with the reset link
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    const resetLink = `${process.env.FRONTEND_URL}/requestPasswordReset?token=${token}`;
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: user.email,
+      subject: "Password Reset Request",
+      text: `You requested a password reset. Click the link to reset your password: ${resetLink}`,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    res.json({ success: true, message: "Password reset email sent" });
+  } catch (error) {
+    console.error(error);
+    res.json({ success: false, message: "Error sending password reset email" });
+  }
+};
+const verifyResetToken = async (req, res) => {
+  try {
+    const { token } = req.body;
+
+    if (!token) {
+      return res.json({ success: false, message: "Token is required" });
+    }
+
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+    const user = await userModel.findOne({
+      resetPasswordToken: hashedToken,
+      resetPasswordExpires: { $gt: Date.now() }, // Check expiration
+    });
+
+    if (!user) {
+      return res.json({ success: false, message: "Invalid or expired token" });
+    }
+
+    res.json({ success: true, message: "Token is valid" });
+  } catch (error) {
+    console.error(error);
+    res.json({ success: false, message: "Error verifying token" });
+  }
+};
+
+const resetPassword = async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+    console.log(token, newPassword, "backend");
+
+    // if (!email) {
+    //   return res.json({ success: false, message: "please enter valid email" });
+    // }
+
+    if (newPassword.length < 8) {
+      return res.json({
+        success: false,
+        message: "Password must be at least 8 characters long",
+      });
+    }
+    console.log("Request Token:", token);
+    // const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+    const hashedToken = token;
+    console.log("Hashed Token:", hashedToken);
+    const user = await userModel.findOne({
+      resetPasswordToken: hashedToken,
+      resetPasswordExpires: { $gt: Date.now() },
+    });
+    console.log("User Found:", user);
+
+    if (!user) {
+      return res.json({ success: false, message: "Invalid or expired token" });
+    }
+
+    // Hash the new password
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(newPassword, salt);
+    user.resetPasswordToken = undefined; // Clear the token
+    user.resetPasswordExpires = undefined;
+    await user.save();
+
+    res.json({ success: true, message: "Password reset successful" });
+  } catch (error) {
+    console.error(error);
+    res.json({ success: false, message: "Error resetting password" });
   }
 };
 
@@ -383,4 +501,7 @@ export {
   verifyRazorpay,
   paymentStripe,
   verifyStripe,
+  requestPasswordReset,
+  verifyResetToken,
+  resetPassword,
 };
