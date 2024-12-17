@@ -9,6 +9,7 @@ import adminRouter from "./routes/adminRoute.js";
 import reviewRouter from "./routes/reviewRoutes.js";
 import hospitalRoutes from "./routes/hospitalRoutes.js";
 import insuranceRoutes from "./routes/insuranceRoute.js";
+import surgeriesRoute from "./routes/surgeryRoute.js";
 // app config
 const app = express();
 const port = process.env.PORT || 3000;
@@ -26,6 +27,7 @@ app.use("/api/doctor", doctorRouter);
 app.use("/api/reviews", reviewRouter);
 app.use("/api/hospitals", hospitalRoutes);
 app.use("/api/insurances", insuranceRoutes);
+app.use("/api/surgeries", surgeriesRoute);
 
 app.get("/", (req, res) => {
   res.send("API Working");
