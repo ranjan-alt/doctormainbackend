@@ -15,6 +15,9 @@ const doctorSchema = new mongoose.Schema(
     slots_booked: { type: Object, default: {} },
     address: { type: Object, required: true },
     date: { type: Number, required: true },
+    country: { type: String, required: true }, // Added country field
+    state: { type: String, required: true },
+    city: { type: String, required: true },
     slots: [
       {
         day: { type: String, required: true },
